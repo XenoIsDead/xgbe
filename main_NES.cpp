@@ -33,9 +33,11 @@ struct CPU
     //TODO: rewrite it to be bitwise
     bool N,V,B,D,I,Z,C;
     static constexpr Byte
+        //Load Accumulator
+        LDA_IMM = 0xA9,
         //ADD with Carry
         ADC_IMM = 0x69,
-        ADC_ZPG = 0x69,
+        ADC_ZPG = 0x65,
         ADC_ZPX = 0x75,
         ADC_ABS = 0x6D,
         ADC_ABX = 0x7D,
@@ -66,6 +68,12 @@ struct CPU
         while(cycles > 0){
             Byte inst = Grab(cycles, mem);
             switch(inst){
+                case(LDA_IMM):
+                {
+                    Byte imm = Grab(cycles,mem);
+                    Z = (A = 0);
+                    N = (imm & 0b10000000) > 0;
+                }break;
                 case(ADC_IMM):
                 {
                     Byte imm = Grab(cycles, mem);
@@ -88,6 +96,8 @@ int main(){
     MEMORY mem;
     CPU cpu;
     cpu.Reset(mem);
+    mem.Data[0x0000]=0xA9;
+    mem.Data[0x0001]=0xFF;
     cpu.Execute(2, mem);
     return 0;
 };
